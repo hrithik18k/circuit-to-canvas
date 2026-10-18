@@ -16,10 +16,10 @@ test("public buildTracePolygon preserves vertex widths, bends, and input", () =>
   ]
   expect(buildTracePolygon(points)).toEqual(expected)
   expect(buildTracePolygon([...points].reverse())).toEqual([
-    expected[2],
-    expected[3],
-    expected[0],
-    expected[1],
+    { x: 4, y: -1.5 },
+    { x: 0, y: -0.5 },
+    { x: 0, y: 0.5 },
+    { x: 4, y: 1.5 },
   ])
   const bend = buildTracePolygon([
     points[0],
