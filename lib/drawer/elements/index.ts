@@ -21,6 +21,7 @@ export {
 } from "./soldermask-margin"
 
 export { drawPcbTrace, type DrawPcbTraceParams } from "./pcb-trace/pcb-trace"
+export { buildTracePolygon } from "./pcb-trace/build-trace-polygon"
 
 export { drawPcbBoard, type DrawPcbBoardParams } from "./pcb-board"
 
