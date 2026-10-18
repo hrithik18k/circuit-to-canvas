@@ -1,6 +1,7 @@
 {
   "name": "circuit-to-canvas",
   "main": "dist/index.js",
+  "types": "lib/index.ts",
   "version": "0.0.136",
   "repository": {
     "type": "git",
