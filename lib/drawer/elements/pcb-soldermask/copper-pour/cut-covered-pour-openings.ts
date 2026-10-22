@@ -229,6 +229,8 @@ function cutPlatedHole(params: {
       })),
       fill: CUTOUT_MASK_COLOR,
       realToCanvasMat,
+      center: { x: hole.x, y: hole.y },
+      rotation: hole.ccw_rotation,
     })
   }
 }
