@@ -183,21 +183,25 @@ function drawPlatedHoleShapePath(params: {
     hole.pad_outline &&
     hole.pad_outline.length >= 3
   ) {
-    const padPoints = hole.pad_outline.map(
-      (point: { x: number; y: number }) => ({
-        x: hole.x + point.x,
-        y: hole.y + point.y,
-      }),
-    )
+    const [centerX, centerY] = applyToPoint(realToCanvasMat, [hole.x, hole.y])
+    const padPoints = hole.pad_outline.map((point) => ({
+      x: hole.x + point.x,
+      y: hole.y + point.y,
+    }))
     const marginPoints =
       margin !== 0 ? offsetPolygonPoints(padPoints, margin) : padPoints
-    const canvasPoints = marginPoints.map((p) => {
-      const [x, y] = applyToPoint(realToCanvasMat, [p.x, p.y])
-      return { x, y }
-    })
+    const canvasPoints = marginPoints.map((point) =>
+      applyToPoint(realToCanvasMat, point),
+    )
 
     ctx.beginPath()
-    drawPolygonPath({ ctx, points: canvasPoints })
+    drawPolygonPath({
+      ctx,
+      points: canvasPoints,
+      cx: centerX,
+      cy: centerY,
+      ccwRotationDegrees: hole.ccw_rotation,
+    })
   }
 }
 
@@ -413,30 +417,23 @@ function drawNegativeMarginRingForPlatedHole(params: {
     hole.pad_outline &&
     hole.pad_outline.length >= 3
   ) {
-    const padPoints = hole.pad_outline.map(
-      (point: { x: number; y: number }) => ({
-        x: hole.x + point.x,
-        y: hole.y + point.y,
-      }),
-    )
+    const [centerX, centerY] = applyToPoint(realToCanvasMat, [hole.x, hole.y])
+    const padPoints = hole.pad_outline.map((point) => ({
+      x: hole.x + point.x,
+      y: hole.y + point.y,
+    }))
+    const innerPoints = offsetPolygonPoints(padPoints, -marginThickness)
 
     ctx.beginPath()
-
-    // Draw outer polygon
-    const outerPoints = padPoints.map((p) => {
-      const [x, y] = applyToPoint(realToCanvasMat, [p.x, p.y])
-      return { x, y }
-    })
-    drawPolygonPath({ ctx, points: outerPoints })
-
-    // Draw inner polygon cutout
-    const innerMarginPoints = offsetPolygonPoints(padPoints, -marginThickness)
-    if (innerMarginPoints.length >= 3) {
-      const innerPoints = innerMarginPoints.map((p) => {
-        const [x, y] = applyToPoint(realToCanvasMat, [p.x, p.y])
-        return { x, y }
+    for (const outline of [padPoints, innerPoints]) {
+      if (outline.length < 3) continue
+      drawPolygonPath({
+        ctx,
+        points: outline.map((point) => applyToPoint(realToCanvasMat, point)),
+        cx: centerX,
+        cy: centerY,
+        ccwRotationDegrees: hole.ccw_rotation,
       })
-      drawPolygonPath({ ctx, points: innerPoints })
     }
 
     ctx.fill("evenodd")
