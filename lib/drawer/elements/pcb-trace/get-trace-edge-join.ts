@@ -49,9 +49,26 @@ export function getTraceEdgeJoin({
   }
   if (incomingEnd.x === outgoingStart.x && incomingEnd.y === outgoingStart.y)
     return [incomingEnd]
+  const isInside =
+    (incoming.x * outgoing.y - incoming.y * outgoing.x) * side > 0
+  // Passing through the center keeps overlapping segment faces from cancelling.
+  const untrimmedJoin = isInside
+    ? [incomingEnd, { x: point.x, y: point.y }, outgoingStart]
+    : [incomingEnd, outgoingStart]
+  // An inside edge beyond the adjacent end cap must remain part of the outline.
+  if (
+    isInside &&
+    ((incomingEnd.x - next.x) * outgoing.x +
+      (incomingEnd.y - next.y) * outgoing.y >
+      0 ||
+      (outgoingStart.x - previous.x) * incoming.x +
+        (outgoingStart.y - previous.y) * incoming.y <
+        0)
+  )
+    return untrimmedJoin
   const determinant =
     incomingEdge.x * outgoingEdge.y - incomingEdge.y * outgoingEdge.x
-  if (determinant === 0) return [incomingEnd, outgoingStart]
+  if (determinant === 0) return untrimmedJoin
   const alongIncoming =
     ((outgoingStart.x - incomingStart.x) * outgoingEdge.y -
       (outgoingStart.y - incomingStart.y) * outgoingEdge.x) /
@@ -67,10 +84,7 @@ export function getTraceEdgeJoin({
     alongOutgoing < 0 ||
     alongOutgoing > 1
   )
-    // Overlapping short segments must add copper rather than cancel its winding.
-    return (incoming.x * outgoing.y - incoming.y * outgoing.x) * side > 0
-      ? [incomingEnd, { x: point.x, y: point.y }, outgoingStart]
-      : [incomingEnd, outgoingStart]
+    return untrimmedJoin
   return [
     {
       x: incomingStart.x + alongIncoming * incomingEdge.x,
