@@ -10,17 +10,21 @@ test("interpolated trace intersections keep empty, straight, repeated and revers
     width: 2,
     layer: "top",
   }
-  for (const route of [
-    [],
-    [point],
-    [point, point],
-    [point, point, { ...point, x: 4 }],
-    [point, { ...point, x: 4 }, point],
-    [point, { ...point, x: 4 }, { ...point, x: 8, width: 4 }],
+  for (const { route, vertexCount } of [
+    { route: [], vertexCount: 0 },
+    { route: [point], vertexCount: 2 },
+    { route: [point, point], vertexCount: 4 },
+    { route: [point, point, { ...point, x: 4 }], vertexCount: 6 },
+    { route: [point, { ...point, x: 4 }, point], vertexCount: 8 },
+    {
+      route: [point, { ...point, x: 4 }, { ...point, x: 8, width: 4 }],
+      vertexCount: 6,
+    },
   ]) {
     const original = structuredClone(route)
     const polygon = buildTracePolygon(route)
-    expect(polygon).toHaveLength(route.length * 2)
+    // A reversing join has separate incoming and outgoing offset vertices.
+    expect(polygon).toHaveLength(vertexCount)
     expect(
       polygon.every(({ x, y }) => Number.isFinite(x) && Number.isFinite(y)),
     ).toBe(true)

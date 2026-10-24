@@ -10,13 +10,14 @@ test("varying-width bends intersect the actual sloping trace edges", () => {
   ]
   const original = structuredClone(route)
   const polygon = buildTracePolygon(route)
-  // Left edges: y=1+x/4 and x=2-y/4. Right edges: y=-1-x/4 and x=6+y/4.
+  // Inside edges intersect at y=1+x/4 and x=2-y/4; the outside is a bevel.
   const expected = [
     { x: 0, y: 1 },
     { x: 28 / 17, y: 24 / 17 },
     { x: 1, y: 4 },
     { x: 7, y: 4 },
-    { x: 92 / 17, y: -40 / 17 },
+    { x: 6, y: 0 },
+    { x: 4, y: -2 },
     { x: 0, y: -1 },
   ]
   expect(polygon).toHaveLength(expected.length)
